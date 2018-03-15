@@ -15,6 +15,13 @@
 \usepackage{fancyvrb}
 \usepackage{float}
 \usepackage{graphicx}
+\usepackage{array}
+
+\makeatletter
+\newcommand{\thickhline}{%
+    \noalign {\ifnum 0=`}\fi \hrule height 2pt
+    \futurelet \reserved@a \@xhline
+}
 
 \newenvironment{tightcenter}{%
   \setlength\topsep{0pt}
@@ -139,35 +146,34 @@ There will be an array of threads created. These threads will be started using t
   \hline
  Approach & Number of threads & N0=N1=128 (s) & N0=N1=1024 (s) & N0=N1=8192 (s) \\
 \hline
+Naive & 1 & 0.000084 & 0.005874 & 0.618465 \\
+\thickhline
+Pthread & 4 & 0.000218 & 0.004603 & 0.361724\\
+\hline
+OpenMP & 4 & 0.000257 & 0.004736 & 0.338765 \\
+\thickhline
+Pthread & 8 & 0.000404 & 0.004783 & 0.493866\\
+\hline
+OpenMP & 8 & 0.000311 & 0.005089 & 0.344698 \\
+\thickhline
+Pthread & 16 & 0.000566 & 0.005851 & 0.645945\\
+\hline
+OpenMP & 16 & 0.000684 & 0.006291 & 0.346905\\
+\thickhline
+Pthread & 64 & 0.001859 & 0.006068 & 0.659484\\
+\hline
+OpenMP & 64 & 0.002393 & 0.007958 & 0.355934\\
+\thickhline
+Pthread & 128 & 0.003133 & 0.006791 & 0.659805\\
+\hline
+OpenMP & 128 & 0.002954 & 0.008735 & 0.356946\\
+\thickhline
 
-Naïve	&   1	& 0.000230	  & 0.017072    &   3.691947\\
-\hline
-Pthread	&   4	& 0.000670	  & 0.009538    &   1.640811\\
-\hline
-OpenMP	&   4	& 0.000872    & 0.025300    &  	1.630964\\ 
-\hline
-Pthread	&   8	& 0.001011	  & 0.013418    &	1.743164\\
-\hline
-OpenMP	&   8	& 0.000872    & 0.027636    &  	1.737098\\
-\hline
-Pthread	&   16  & 0.003531	  & 0.019625	&   1.761639\\
-\hline
-OpenMP	&   16  & 0.001639    & 0.030240    &  	1.755257\\
-\hline
-Pthread	&   64  & 0.009504	  & 0.033195    &	2.105213\\
-\hline
-OpenMP	&   64  & 0.004855    & 0.032764    &  	1.771527\\
-\hline
-Pthread	&   128 & 0.011268    &	0.035964    &  	2.141281\\  
-\hline
-OpenMP	&   128 & 0.010520    & 0.034253    & 	1.816840\\
-
-\hline
 \end{tabular}
 
 \end{table} 
 
-When the array is relatively small, then the fastest method is the naive approach. This is due to the naive approach not requiring to allocate work to various threads, which takes time. Pthread consistently computes faster than the naive approach and OpenMP when N is 1024. This is due to Pthread allowing fast access to the threads. The optimal number of threads from the tested set is four. Finally OpenMP is optimal for very large arrays since the compiler can decide how each thread should allocate its work. Again the number of threads that yield the best results is four. This is due to the access time and work allocation for a large number of threads taking time, as well as the physical limitation of 4 threads. This means that any other threads will become virtual, severely decreasing computation speed. The system is scalable due to the format of memory management, as well as the structure of the threads.\\
+When the array is relatively small, then the fastest method is the naive approach. This is due to the naive approach not requiring to allocate work to various threads, which takes time. Pthread consistently computes faster than the naive approach and OpenMP when N is 1024. This is due to Pthread allowing fast access to the threads. The optimal number of threads from the tested set is four because there is no need to manage queuing of threads as four threads is the physical limit of the computer used for testing. However, when more threads are being used, Pthread starts to slow down due to the fact that it requires the user to manage the queues for optimization of cores and tasks assigned. Finally OpenMP is optimal for very large arrays (N is 8192) since the compiler can decide how each thread should allocate its work as well as handling thread queuing for the user. The optimal number of threads for OpenMP is also four. This is due to the access time and work allocation for a large number of threads consuming time, as well as the physical limitation of four threads. This means that any other threads will become virtual, severely decreasing computation speed.  The system is also scalable due to the format of memory management, as well as the structure of the threads.\\
 
 \newpage
 \section{Pseudo-code pthreads}
